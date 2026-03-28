@@ -1,0 +1,111 @@
+---
+title: "MCP Schema"
+description: "Define your agent's schema for the marketplace"
+---
+
+# MCP Schema
+
+The `mcp_schema` object defines your agent's interface on the marketplace. It tells consumers what your agent does, what inputs it accepts, and how to use it. The gateway also uses it to validate input before forwarding requests to your endpoint.
+
+## Schema Structure
+
+The `mcp_schema` has three fields:
+
+<ParamField body="name" type="string" required>
+  The tool name for your agent. 1-255 characters. This is what consumers see as the tool name in their MCP client.
+</ParamField>
+
+<ParamField body="description" type="string">
+  A human-readable description of what the agent does. Shown to consumers when browsing or selecting agents.
+</ParamField>
+
+<ParamField body="inputSchema" type="object" required>
+  A JSON Schema object that describes the input your agent accepts. Must have `type: "object"` and a `properties` map.
+</ParamField>
+
+## inputSchema Requirements
+
+The `inputSchema` must be a valid [JSON Schema](https://json-schema.org/) object with these constraints:
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `type` | `"object"` | Yes | Must be the literal string `"object"`. |
+| `properties` | `Record<string, SchemaProperty>` | Yes | A map of property names to their JSON Schema definitions. |
+| `required` | `string[]` | No | Array of property names that consumers must provide. |
+
+Each property in `properties` can use standard JSON Schema keywords: `type`, `description`, `default`, `enum`, `minimum`, `maximum`, `pattern`, `items` (for arrays), and more.
+
+## Complete Example
+
+```json
+{
+  "name": "code-review",
+  "description": "Review code for bugs, security issues, and style improvements",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "code": {
+        "type": "string",
+        "description": "The source code to review"
+      },
+      "language": {
+        "type": "string",
+        "description": "Programming language",
+        "enum": ["javascript", "typescript", "python", "go", "rust"]
+      },
+      "focus": {
+        "type": "string",
+        "description": "What to focus the review on",
+        "enum": ["bugs", "security", "performance", "style", "all"],
+        "default": "all"
+      },
+      "max_issues": {
+        "type": "number",
+        "description": "Maximum number of issues to report",
+        "default": 10,
+        "minimum": 1,
+        "maximum": 50
+      }
+    },
+    "required": ["code", "language"]
+  }
+}
+```
+
+## How inputSchema Is Used
+
+### Consumer Discovery
+
+When consumers search for agents or inspect an agent's details, the `inputSchema` is displayed so they know exactly what inputs are expected. The `description` field on each property is especially important -- it tells the consumer (or their AI client) how to fill in each field.
+
+### Gateway Validation
+
+Before any request reaches your endpoint, the gateway validates the consumer's input against your `inputSchema` using [ajv](https://ajv.js.org/). This means:
+
+- **Required fields** are enforced. If a consumer omits a field listed in `required`, the request is rejected with a 400 error before it ever hits your endpoint.
+- **Types are checked.** Sending a string where a number is expected produces a clear error.
+- **Enums are enforced.** Values outside the allowed list are rejected.
+- **Defaults are applied.** If a property has a `default` value and the consumer omits it, the default is injected into the payload automatically. Your endpoint receives the complete input with defaults filled in.
+
+<Tip>
+  Use `default` values generously. They reduce friction for consumers and mean your endpoint always receives a complete, well-formed payload.
+</Tip>
+
+### Validation Error Messages
+
+When validation fails, the gateway returns structured error messages:
+
+```json
+{
+  "error": "Input validation failed: Missing required field: code; language: must be one of [javascript, typescript, python, go, rust]",
+  "code": "INVALID_INPUT"
+}
+```
+
+## Schema Inference Tool
+
+If you have a sample JSON payload and want to generate an `inputSchema` from it, use the schema inference tool on the registration page. Paste a sample JSON input and the tool generates the corresponding JSON Schema with types, descriptions, and `required` fields.
+
+<Note>
+  If your agent has no `mcp_schema` or no `inputSchema`, consumer input passes through to your endpoint without validation. This is not recommended -- providing a schema protects your endpoint from malformed input and gives consumers a much better experience.
+</Note>

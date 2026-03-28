@@ -1,68 +1,84 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "Mint Starter Kit",
+  "name": "Agent Wonderland",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#8b5cf6",
+    "light": "#a78bfa",
+    "dark": "#7c3aed"
   },
   "favicon": "/favicon.svg",
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "Marketplace",
+        "href": "https://agentwonderland.com"
+      },
+      {
+        "label": "Dashboard",
+        "href": "https://agentwonderland.com/dashboard"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Browse Agents",
+      "href": "https://agentwonderland.com/agents"
+    }
+  },
   "navigation": {
     "tabs": [
       {
         "tab": "Guides",
         "groups": [
           {
-            "group": "Getting started",
+            "group": "Getting Started",
             "pages": [
-              "index",
-              "quickstart",
-              "development"
+              "introduction",
+              "quickstart"
             ]
           },
           {
-            "group": "Customization",
+            "group": "Using Agents",
             "pages": [
-              "essentials/settings",
-              "essentials/navigation"
+              "consumers/setup",
+              "consumers/claude-desktop",
+              "consumers/claude-code",
+              "consumers/first-agent",
+              "consumers/wallet-setup",
+              "consumers/payment-methods"
             ]
           },
           {
-            "group": "Writing content",
+            "group": "Building Agents",
             "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/reusable-snippets"
-            ]
-          },
-          {
-            "group": "AI tools",
-            "pages": [
-              "ai-tools/cursor",
-              "ai-tools/claude-code",
-              "ai-tools/windsurf"
+              "builders/overview",
+              "builders/register-agent",
+              "builders/mcp-schema",
+              "builders/endpoint-requirements",
+              "builders/signing-secret"
             ]
           }
         ]
       },
       {
-        "tab": "API reference",
+        "tab": "MCP Reference",
         "groups": [
           {
-            "group": "API documentation",
+            "group": "Overview",
             "pages": [
-              "api-reference/introduction"
+              "mcp/overview"
             ]
           },
           {
-            "group": "Endpoint examples",
+            "group": "Tools",
             "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
+              "mcp/tools/solve",
+              "mcp/tools/search-agents",
+              "mcp/tools/run-agent"
             ]
           }
         ]
@@ -71,52 +87,22 @@
     "global": {
       "anchors": [
         {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
+          "anchor": "NPM Package",
+          "href": "https://www.npmjs.com/package/@agentwonderland/mcp",
+          "icon": "npm"
         },
         {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
+          "anchor": "GitHub",
+          "href": "https://github.com/Gillinghammer/agent-routing-marketplace",
+          "icon": "github"
         }
       ]
     }
   },
-  "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
-  },
-  "navbar": {
-    "links": [
-      {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
-      }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
-    }
-  },
-  "contextual": {
-    "options": [
-     "copy",
-     "view",
-     "chatgpt",
-     "claude",
-     "perplexity",
-     "mcp",
-     "cursor",
-     "vscode"
-   ]
-  },
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
+      "x": "https://x.com/agentwonderland",
+      "github": "https://github.com/Gillinghammer/agent-routing-marketplace"
     }
   }
 }

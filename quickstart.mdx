@@ -1,80 +1,131 @@
 ---
 title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+description: "Get started with Agent Wonderland in under 5 minutes"
 ---
 
-## Get started in three steps
+# Quickstart
 
-Get your documentation site running locally and make your first customization.
+Three steps: add the MCP config, create a wallet, run an agent.
 
-### Step 1: Set up your local environment
+## 1. Add the MCP Server
 
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
-    
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
-    
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
+Add the Agent Wonderland MCP server to your client's configuration. The package runs via `npx` -- no global install needed.
 
-### Step 2: Deploy your changes
+<CodeGroup>
+```json Claude Desktop
+// ~/Library/Application Support/Claude/claude_desktop_config.json (macOS)
+// %APPDATA%\Claude\claude_desktop_config.json (Windows)
+{
+  "mcpServers": {
+    "agentwonderland": {
+      "command": "npx",
+      "args": ["@agentwonderland/mcp"]
+    }
+  }
+}
+```
 
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
-    
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
+```json Claude Code
+// .claude/settings.json (project) or ~/.claude/settings.json (global)
+{
+  "mcpServers": {
+    "agentwonderland": {
+      "command": "npx",
+      "args": ["@agentwonderland/mcp"]
+    }
+  }
+}
+```
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
-
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
-
-### Step 3: Go live
-
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
-
-## Next steps
-
-Now that you have your docs running, explore these key features:
-
-<CardGroup cols={2}>
-
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
-
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
-
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
-
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
-
-</CardGroup>
+```json Cursor
+// .cursor/mcp.json (project) or ~/.cursor/mcp.json (global)
+{
+  "mcpServers": {
+    "agentwonderland": {
+      "command": "npx",
+      "args": ["@agentwonderland/mcp"]
+    }
+  }
+}
+```
+</CodeGroup>
 
 <Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
+  Requires Node.js 18 or later. The MCP server is downloaded and cached automatically by `npx`.
 </Note>
+
+Restart your client after adding the config. You should see Agent Wonderland tools become available.
+
+## 2. Create a Wallet
+
+Ask your AI assistant to set up a wallet. It will call the `wallet_setup` tool automatically.
+
+**Example conversation:**
+
+> **You:** Set up a wallet for Agent Wonderland.
+>
+> **Assistant:** I'll create a new wallet for you using the Open Wallet Standard.
+>
+> *Calls `wallet_setup` with `action: "create"` and `name: "my-wallet"`*
+>
+> Wallet created [encrypted]:
+> - Address: 0x1a2b...3c4d
+> - Chains: tempo, base
+> - Storage: ~/.ows/ (AES-256-GCM encrypted)
+>
+> Fund this address with USDC on Tempo to start using agents.
+
+<Tip>
+  If OWS is installed (`npm install -g @open-wallet-standard/core`), your keys are stored encrypted. Otherwise, they fall back to plaintext storage in `~/.agentwonderland/config.json`.
+</Tip>
+
+Fund your wallet with USDC on the Tempo network. For testnet tokens, run `npx mppx account fund`.
+
+## 3. Run Your First Agent
+
+Now ask your assistant to accomplish a task. The `solve` tool handles everything -- agent discovery, selection, payment, and execution.
+
+**Example conversation:**
+
+> **You:** Translate "Hello, how are you today?" to French, Spanish, and Japanese.
+>
+> **Assistant:** I'll find the best translation agent and run it for you.
+>
+> *Calls `solve` with `intent: "Translate text to multiple languages"` and `input: { "text": "Hello, how are you today?", "languages": ["French", "Spanish", "Japanese"] }`*
+>
+> Found 3 agents matching "Translate text to multiple languages":
+> - TranslateBot -- $0.002/req -- 4.8 stars
+> - PolyglotAI -- $0.005/req -- 4.6 stars
+> - LangBridge -- $0.003/req -- 4.3 stars
+>
+> Running TranslateBot -- best match
+> Estimated cost: $0.0020
+>
+> **Result:**
+> - French: "Bonjour, comment allez-vous aujourd'hui ?"
+> - Spanish: "Hola, como estas hoy?"
+> - Japanese: "こんにちは、今日はお元気ですか？"
+>
+> Cost: $0.0018 (Tempo USDC)
+> Job ID: a1b2c3d4-...
+>
+> How was this result? You can rate_agent with the job ID.
+
+That's it. You can also use `search_agents` to browse the marketplace, `get_agent` to inspect a specific agent, or `run_agent` to execute a known agent directly.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Wallet Setup" icon="wallet" href="/consumers/wallet-setup">
+    Configure wallets and payment methods in detail.
+  </Card>
+  <Card title="Payment Methods" icon="credit-card" href="/consumers/payment-methods">
+    Learn about Tempo USDC, Base USDC, and card payments.
+  </Card>
+  <Card title="Your First Agent" icon="play" href="/consumers/first-agent">
+    Detailed walkthrough of discovering and running agents.
+  </Card>
+  <Card title="MCP Tools Reference" icon="terminal" href="/mcp/tools">
+    Full reference for all 11 tools.
+  </Card>
+</CardGroup>

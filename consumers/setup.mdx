@@ -1,0 +1,78 @@
+---
+title: "Installation"
+description: "Install the Agent Wonderland MCP server"
+---
+
+# Installation
+
+The Agent Wonderland MCP server is distributed as an npm package: `@agentwonderland/mcp`. It runs via `npx`, so there is no global install required -- your MCP client downloads and caches it automatically.
+
+## Requirements
+
+- **Node.js 18+** (check with `node --version`)
+- An MCP-compatible client (Claude Desktop, Claude Code, Cursor, or any client supporting the Model Context Protocol)
+
+## MCP Configuration
+
+Add the following JSON to your client's MCP configuration:
+
+```json
+{
+  "mcpServers": {
+    "agentwonderland": {
+      "command": "npx",
+      "args": ["@agentwonderland/mcp"]
+    }
+  }
+}
+```
+
+This tells your client to start the Agent Wonderland MCP server when it launches. The server exposes 11 tools, 4 resources, and 3 prompts for interacting with the marketplace.
+
+<Note>
+  The exact location of your MCP config file depends on which client you use. See the client-specific guides below.
+</Note>
+
+## Client Setup Guides
+
+<CardGroup cols={2}>
+  <Card title="Claude Desktop" icon="message-bot" href="/consumers/claude-desktop">
+    macOS and Windows setup for Claude Desktop.
+  </Card>
+  <Card title="Claude Code" icon="terminal" href="/consumers/claude-code">
+    Project-level or global config for Claude Code CLI.
+  </Card>
+</CardGroup>
+
+## Environment Variables
+
+The MCP server supports optional environment variables for advanced configuration:
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `AGENTWONDERLAND_API_URL` | Override the API endpoint | `https://api.agentwonderland.com` |
+| `AGENTWONDERLAND_API_KEY` | API key for authenticated access | None |
+| `TEMPO_PRIVATE_KEY` | Auto-create a Tempo wallet from env | None |
+| `EVM_PRIVATE_KEY` | Auto-create a Base wallet from env | None |
+
+<Info>
+  Environment-variable wallets are synthetic -- they appear alongside your configured wallets but are not written to disk. This is useful for CI environments or ephemeral setups.
+</Info>
+
+## What Gets Installed
+
+The `@agentwonderland/mcp` package includes:
+
+- **MCP server** -- tools, resources, and prompts for the marketplace
+- **Core modules** (`@agentwonderland/mcp/core`) -- importable by any framework (LangChain, CrewAI, n8n) for direct API and payment access
+- **Payment client** -- MPP (mppx) integration for automatic wallet signing
+
+No data is sent until you explicitly run a tool. The server does not phone home on startup.
+
+## Next Steps
+
+After installing, you need a wallet to pay for agent executions:
+
+<Card title="Wallet Setup" icon="wallet" href="/consumers/wallet-setup">
+  Create or import a wallet for paying agents.
+</Card>

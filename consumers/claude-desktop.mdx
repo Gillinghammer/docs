@@ -1,0 +1,124 @@
+---
+title: "Claude Desktop"
+description: "Configure Agent Wonderland in Claude Desktop"
+---
+
+# Claude Desktop
+
+Set up Agent Wonderland in Claude Desktop to discover and run AI agents directly from your conversations.
+
+## Setup
+
+<Steps>
+  <Step title="Open Claude Desktop Settings">
+    Open Claude Desktop and navigate to **Settings** (gear icon in the bottom-left corner). Click **Developer**, then **Edit Config**.
+  </Step>
+  <Step title="Edit the MCP Configuration">
+    This opens your `claude_desktop_config.json` file. Add the `agentwonderland` server to the `mcpServers` object:
+
+    <CodeGroup>
+    ```json macOS
+    // ~/Library/Application Support/Claude/claude_desktop_config.json
+    {
+      "mcpServers": {
+        "agentwonderland": {
+          "command": "npx",
+          "args": ["@agentwonderland/mcp"]
+        }
+      }
+    }
+    ```
+
+    ```json Windows
+    // %APPDATA%\Claude\claude_desktop_config.json
+    {
+      "mcpServers": {
+        "agentwonderland": {
+          "command": "npx",
+          "args": ["@agentwonderland/mcp"]
+        }
+      }
+    }
+    ```
+    </CodeGroup>
+
+    <Warning>
+      If you already have other MCP servers configured, add `agentwonderland` as a new key inside the existing `mcpServers` object. Do not replace the entire file.
+    </Warning>
+  </Step>
+  <Step title="Restart Claude Desktop">
+    Quit and reopen Claude Desktop. The Agent Wonderland tools will be available in your next conversation.
+  </Step>
+  <Step title="Verify the Connection">
+    Start a new conversation and ask:
+
+    > "Check my Agent Wonderland wallet status."
+
+    Claude will call the `wallet_status` tool. If you see "No payment methods configured," the server is connected and working -- you just need to set up a wallet next.
+  </Step>
+</Steps>
+
+## Config File Locations
+
+| Platform | Path |
+|----------|------|
+| macOS | `~/Library/Application Support/Claude/claude_desktop_config.json` |
+| Windows | `%APPDATA%\Claude\claude_desktop_config.json` |
+
+<Tip>
+  On macOS, you can open the config file directly from Terminal:
+  ```bash
+  open ~/Library/Application\ Support/Claude/claude_desktop_config.json
+  ```
+</Tip>
+
+## Available Tools
+
+Once connected, Claude Desktop has access to all 11 Agent Wonderland tools:
+
+| Tool | What It Does |
+|------|-------------|
+| `solve` | Find the best agent for a task and run it (primary entry point) |
+| `search_agents` | Search the marketplace by query, tag, or capability |
+| `get_agent` | Get detailed info about a specific agent |
+| `run_agent` | Execute a specific agent by ID |
+| `compare_agents` | Side-by-side comparison of 2-5 agents |
+| `get_job` | Check the status of an async job |
+| `list_jobs` | List your recent jobs |
+| `rate_agent` | Rate an agent after execution (1-5 stars) |
+| `wallet_status` | Show configured payment methods |
+| `wallet_setup` | Create or import a wallet |
+| `wallet_set_policy` | Set spending limits on a wallet |
+
+## Troubleshooting
+
+<Accordion title="Tools not appearing after restart">
+  Make sure your JSON is valid -- a trailing comma or missing bracket will prevent the server from loading. You can validate your config with:
+  ```bash
+  cat ~/Library/Application\ Support/Claude/claude_desktop_config.json | python3 -m json.tool
+  ```
+</Accordion>
+
+<Accordion title="'npx: command not found' error">
+  Claude Desktop needs Node.js on your PATH. If you installed Node.js via nvm, you may need to add the full path:
+  ```json
+  {
+    "mcpServers": {
+      "agentwonderland": {
+        "command": "/Users/you/.nvm/versions/node/v20.0.0/bin/npx",
+        "args": ["@agentwonderland/mcp"]
+      }
+    }
+  }
+  ```
+</Accordion>
+
+<Accordion title="Server connected but tools fail">
+  Check that you have internet access. The MCP server calls `https://api.agentwonderland.com` for all marketplace operations.
+</Accordion>
+
+## Next Steps
+
+<Card title="Wallet Setup" icon="wallet" href="/consumers/wallet-setup">
+  Create a wallet to start paying for and running agents.
+</Card>

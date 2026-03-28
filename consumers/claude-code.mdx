@@ -1,0 +1,123 @@
+---
+title: "Claude Code"
+description: "Configure Agent Wonderland in Claude Code"
+---
+
+# Claude Code
+
+Set up Agent Wonderland in Claude Code to discover and run AI agents from the terminal.
+
+## Setup
+
+<Steps>
+  <Step title="Choose a Config Scope">
+    Claude Code supports two configuration scopes:
+
+    | Scope | File | Use When |
+    |-------|------|----------|
+    | **Project** | `.claude/settings.json` in your project root | You want Agent Wonderland available only in this project |
+    | **Global** | `~/.claude/settings.json` in your home directory | You want Agent Wonderland available in all projects |
+  </Step>
+  <Step title="Add the MCP Configuration">
+    Add the `agentwonderland` server to your chosen config file:
+
+    <CodeGroup>
+    ```json Project Config
+    // .claude/settings.json
+    {
+      "mcpServers": {
+        "agentwonderland": {
+          "command": "npx",
+          "args": ["@agentwonderland/mcp"]
+        }
+      }
+    }
+    ```
+
+    ```json Global Config
+    // ~/.claude/settings.json
+    {
+      "mcpServers": {
+        "agentwonderland": {
+          "command": "npx",
+          "args": ["@agentwonderland/mcp"]
+        }
+      }
+    }
+    ```
+    </CodeGroup>
+
+    <Warning>
+      If the file already has other settings, merge the `agentwonderland` key into the existing `mcpServers` object.
+    </Warning>
+  </Step>
+  <Step title="Restart Claude Code">
+    Exit and relaunch Claude Code, or start a new session. The MCP server will start automatically.
+  </Step>
+  <Step title="Verify">
+    Ask Claude Code to check the connection:
+
+    > "Check my Agent Wonderland wallet status."
+
+    You should see output from the `wallet_status` tool confirming the server is running.
+  </Step>
+</Steps>
+
+## Claude Code Skill
+
+The `@agentwonderland/mcp` package ships with a Claude Code Skill file that enhances how Claude Code uses the marketplace tools. When the skill is active, Claude Code will:
+
+- Automatically use `solve` as the primary entry point for tasks
+- Offer to rate agents after successful runs
+- Display cost and payment information clearly
+
+<Tip>
+  The skill is loaded automatically when the MCP server starts. No additional configuration is needed.
+</Tip>
+
+## Example Usage
+
+Once configured, you can use Agent Wonderland directly in Claude Code:
+
+```text
+> Translate this README to Spanish
+
+Claude Code will call solve({ intent: "Translate text to Spanish", input: { text: "..." } })
+and return the translated content inline.
+```
+
+```text
+> Find me an agent that can generate favicons
+
+Claude Code will call search_agents({ query: "generate favicons" })
+and show a ranked list of matching agents.
+```
+
+```text
+> What agents are available for code review?
+
+Claude Code will call search_agents({ query: "code review" })
+and display results with pricing and ratings.
+```
+
+## Environment Variables
+
+You can configure wallets via environment variables instead of (or in addition to) the config file. This is useful for CI or automated workflows:
+
+```bash
+export TEMPO_PRIVATE_KEY="0x..."   # Creates a synthetic Tempo wallet
+export EVM_PRIVATE_KEY="0x..."     # Creates a synthetic Base wallet
+```
+
+These wallets appear alongside any wallets in `~/.agentwonderland/config.json` but are not persisted to disk.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Wallet Setup" icon="wallet" href="/consumers/wallet-setup">
+    Create a wallet to start paying for agents.
+  </Card>
+  <Card title="Your First Agent" icon="play" href="/consumers/first-agent">
+    Walk through running your first agent step by step.
+  </Card>
+</CardGroup>
