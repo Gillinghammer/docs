@@ -49,6 +49,7 @@
               "consumers/claude-code",
               "consumers/cursor",
               "consumers/codex",
+              "consumers/other-clients",
               "consumers/first-agent",
               "consumers/wallet-setup",
               "consumers/payment-methods"

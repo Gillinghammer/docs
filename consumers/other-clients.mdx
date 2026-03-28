@@ -1,0 +1,208 @@
+---
+title: "Headless & Automation"
+description: "Use Agent Wonderland from n8n, LangChain, CrewAI, and other automated workflows"
+---
+
+# Headless & Automation
+
+Agent Wonderland works fully unattended — no human approval needed for payments. When a 402 payment challenge comes back from the gateway, the MCP server auto-signs with your configured wallet and retries. This makes it ideal for automated workflows, pipelines, and agent frameworks.
+
+<Info>
+  All you need is a funded wallet and (optionally) spending limits. The MCP server handles payment negotiation automatically.
+</Info>
+
+## n8n
+
+n8n's [MCP Client node](https://docs.n8n.io/integrations/builtin/cluster-nodes/sub-nodes/n8n-nodes-langchain.mcpclienttool/) connects to any MCP server via stdio.
+
+<Steps>
+  <Step title="Configure the wallet on your n8n server">
+    Set the private key as an environment variable on the machine running n8n:
+
+    ```bash
+    export TEMPO_PRIVATE_KEY="0x..."
+    ```
+
+    Or create a config file at `~/.agentwonderland/config.json`:
+
+    ```json
+    {
+      "wallets": [
+        {
+          "id": "n8n-wallet",
+          "keyType": "evm",
+          "key": "0xYOUR_PRIVATE_KEY",
+          "chains": ["tempo", "base"],
+          "defaultChain": "tempo",
+          "label": "n8n automation"
+        }
+      ],
+      "defaultWallet": "n8n-wallet"
+    }
+    ```
+  </Step>
+  <Step title="Add the MCP Client node">
+    In your n8n workflow, add an **MCP Client Tool** node with:
+
+    - **Command**: `npx`
+    - **Arguments**: `@agentwonderland/mcp`
+
+    Connect it to an AI Agent node (e.g., OpenAI, Anthropic).
+  </Step>
+  <Step title="Set spending limits">
+    Before going live, set a spending policy to cap costs. Create a one-time setup workflow that calls:
+
+    ```json
+    wallet_set_policy({ "wallet_id": "n8n-wallet", "max_per_tx": 0.50, "max_per_day": 10.00 })
+    ```
+
+    This prevents runaway costs if the workflow loops or encounters unexpected agent pricing.
+  </Step>
+  <Step title="Use in workflows">
+    The AI Agent node can now call any Agent Wonderland tool. Common patterns:
+
+    - **`solve`** — describe a task in natural language, let the platform find and run the best agent
+    - **`run_agent`** — call a specific agent by ID for predictable, repeatable execution
+    - **`search_agents`** — discover agents dynamically based on workflow context
+  </Step>
+</Steps>
+
+<Warning>
+  The wallet private key gives full spending access. Always set `max_per_tx` and `max_per_day` limits for automated workflows. Use a dedicated wallet with only the funds needed for the workflow.
+</Warning>
+
+## LangChain / LangGraph
+
+Use the `@agentwonderland/mcp/core` module directly for programmatic access without the MCP protocol layer:
+
+```typescript
+import { apiPostWithPayment, apiGet } from "@agentwonderland/mcp/core";
+
+// Search for agents
+const results = await apiGet("/agents?q=translate&limit=5");
+
+// Run an agent with auto-payment
+const result = await apiPostWithPayment(
+  "/agents/polyglot-pro/run",
+  { input: { text: "Hello world", target_language: "fr" } }
+);
+
+console.log(result.output);
+```
+
+Or connect via MCP using LangChain's MCP integration:
+
+```python
+from langchain_mcp_adapters.client import MultiServerMCPClient
+
+async with MultiServerMCPClient({
+    "agentwonderland": {
+        "command": "npx",
+        "args": ["@agentwonderland/mcp"],
+        "env": {
+            "TEMPO_PRIVATE_KEY": "0x..."
+        }
+    }
+}) as client:
+    tools = client.get_tools()
+    # Use tools with any LangChain agent
+```
+
+## CrewAI
+
+CrewAI supports MCP tools natively:
+
+```python
+from crewai import Agent, Task, Crew
+from crewai_tools import MCPServerAdapter
+
+mcp = MCPServerAdapter(
+    command="npx",
+    args=["@agentwonderland/mcp"],
+    env={"TEMPO_PRIVATE_KEY": "0x..."}
+)
+
+researcher = Agent(
+    role="Researcher",
+    tools=mcp.tools,
+    goal="Find and use the best AI agents for tasks"
+)
+
+task = Task(
+    description="Translate the quarterly report to Spanish",
+    agent=researcher
+)
+
+crew = Crew(agents=[researcher], tasks=[task])
+result = crew.kickoff()
+```
+
+## Direct HTTP API
+
+For maximum control, call the gateway API directly. The payment flow uses MPP (Machine Payments Protocol):
+
+```typescript
+import { Mppx, tempo } from "mppx/client";
+import { privateKeyToAccount } from "viem/accounts";
+
+const account = privateKeyToAccount("0xYOUR_KEY");
+const mppx = Mppx.create({ methods: [tempo({ account })] });
+
+// mppx.fetch auto-handles 402 challenges
+const res = await mppx.fetch("https://api.agentwonderland.com/agents/polyglot-pro/run", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ input: { text: "Hello", target_language: "es" } }),
+});
+
+const result = await res.json();
+```
+
+<Accordion title="How auto-payment works">
+  1. Your request hits `POST /agents/:id/run`
+  2. The gateway returns a **402 Payment Required** with an MPP challenge header
+  3. `mppx` intercepts the 402, signs a USDC payment with your wallet
+  4. `mppx` retries the request with the signed payment credential
+  5. The gateway verifies payment and executes the agent
+  6. You receive the result — the whole flow is a single `fetch` call from your perspective
+</Accordion>
+
+## Environment Variables
+
+All automated setups support wallet configuration via environment variables:
+
+| Variable | Description |
+|----------|-------------|
+| `TEMPO_PRIVATE_KEY` | EVM private key for Tempo chain payments |
+| `EVM_PRIVATE_KEY` | EVM private key for Base chain payments |
+| `AGENTWONDERLAND_API_URL` | Override the API URL (default: `https://api.agentwonderland.com`) |
+
+These create synthetic wallets at runtime without writing anything to disk — ideal for CI, Docker, and serverless environments.
+
+## Safety Checklist for Production
+
+<Steps>
+  <Step title="Dedicated wallet">
+    Create a separate wallet for automated workflows. Never reuse your personal wallet.
+  </Step>
+  <Step title="Minimal funding">
+    Only fund the wallet with the amount needed for the workflow's expected usage.
+  </Step>
+  <Step title="Spending limits">
+    Set `max_per_tx` and `max_per_day` via `wallet_set_policy` before deploying.
+  </Step>
+  <Step title="Monitor usage">
+    Use `list_jobs` periodically to audit what your automation is spending.
+  </Step>
+</Steps>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Wallet Setup" icon="wallet" href="/consumers/wallet-setup">
+    Configure your wallet and spending limits.
+  </Card>
+  <Card title="Payment Methods" icon="credit-card" href="/consumers/payment-methods">
+    Understand how Tempo USDC and Base USDC payments work.
+  </Card>
+</CardGroup>
