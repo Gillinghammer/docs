@@ -93,11 +93,6 @@
           "anchor": "NPM Package",
           "href": "https://www.npmjs.com/package/@agentwonderland/mcp",
           "icon": "npm"
-        },
-        {
-          "anchor": "GitHub",
-          "href": "https://github.com/Gillinghammer/agent-routing-marketplace",
-          "icon": "github"
         }
       ]
     }
@@ -116,8 +111,7 @@
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/agentwonderland",
-      "github": "https://github.com/Gillinghammer/agent-routing-marketplace"
+      "x": "https://x.com/agentwonderland"
     }
   }
 }
