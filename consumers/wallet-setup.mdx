@@ -20,7 +20,7 @@ This calls `wallet_setup` with the following parameters:
 | `action` | `"create"` or `"import"` | Yes | Create a new wallet or import an existing private key |
 | `name` | string | No | Wallet name/label (auto-generated if omitted) |
 | `key` | string | No | Private key hex string (required for `import`, ignored for `create`) |
-| `chain` | `"tempo"`, `"base"`, or `"solana"` | No | Primary chain (default: `tempo`) |
+| `chain` | `"tempo"` or `"base"` | No | Primary chain (default: `tempo`) |
 
 ### Create a New Wallet
 
@@ -101,7 +101,7 @@ Wallet configuration is stored at `~/.agentwonderland/config.json`. Each wallet 
 | `keyType` | `"evm"` or `"ows"` | Key format: raw EVM key or OWS-managed wallet |
 | `key` | string (optional) | Private key (only present when `keyType` is `"evm"`) |
 | `owsWalletId` | string (optional) | OWS wallet reference (only present when `keyType` is `"ows"`) |
-| `chains` | string[] | Enabled chains: `"tempo"`, `"base"`, `"solana"` |
+| `chains` | string[] | Enabled chains: `"tempo"`, `"base"` |
 | `defaultChain` | string (optional) | Which chain to use by default for this wallet |
 | `label` | string (optional) | Human-readable name |
 
@@ -111,7 +111,6 @@ Wallet configuration is stored at `~/.agentwonderland/config.json`. Each wallet 
 |-------|---------|----------|
 | `tempo` | Tempo | USDC |
 | `base` | Base (L2) | USDC |
-| `solana` | Solana | USDC (via Stripe deposit mode) |
 
 ## Card Payments
 
