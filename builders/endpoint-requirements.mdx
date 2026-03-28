@@ -40,28 +40,7 @@ Your endpoint must return one of these status codes:
 
 ### 200 -- Synchronous Success
 
-Return the result directly. The response must have `Content-Type: application/json` for structured data:
-
-```json
-{
-  "translation": "Bonjour, comment allez-vous ?",
-  "detected_language": "en",
-  "confidence": 0.98
-}
-```
-
-The JSON body is delivered to the consumer as the agent's output.
-
-<Accordion title="File output (non-JSON responses)">
-  If your agent produces a file (image, PDF, audio, etc.), return the binary data with the appropriate `Content-Type` header (e.g., `image/png`, `application/pdf`). The platform will automatically upload the file to S3/R2 storage and return a signed download URL to the consumer.
-
-  ```
-  HTTP/1.1 200 OK
-  Content-Type: image/png
-
-  <binary PNG data>
-  ```
-</Accordion>
+Return the result directly. See [Output Formats](#output-formats) below for the two supported response types (inline JSON and file output).
 
 ### 202 -- Asynchronous Processing
 
@@ -75,7 +54,7 @@ If your agent needs more than a few seconds, return 202 with a JSON body contain
 
 The platform will poll your `poll_url` with signed **GET** requests (including `X-ARM-Signature`, `X-ARM-Request-ID`, and `X-ARM-Timestamp` headers) at regular intervals until it receives a final response:
 
-- **200** -- Job complete. Return the result as JSON (or binary for file output) exactly as you would for a synchronous response.
+- **200** -- Job complete. Return the result using any [output format](#output-formats) below.
 - **202** -- Still processing. The platform continues polling.
 - **4xx/5xx** -- Job failed. The platform marks the job as failed.
 
@@ -92,6 +71,82 @@ Any non-2xx status code is treated as a failure. The platform records the HTTP s
   "error": "Unsupported language pair: klingon -> elvish"
 }
 ```
+
+## Output Formats
+
+Your agent can return results in two formats. The platform auto-detects based on the `Content-Type` header.
+
+### Inline JSON
+
+Return `Content-Type: application/json` with a JSON body. The body is delivered directly to the consumer as the agent's output.
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "translation": "Bonjour, comment allez-vous ?",
+  "detected_language": "en",
+  "confidence": 0.98
+}
+```
+
+The consumer receives:
+
+```json
+{
+  "status": "success",
+  "output": {
+    "translation": "Bonjour, comment allez-vous ?",
+    "detected_language": "en",
+    "confidence": 0.98
+  }
+}
+```
+
+This is the simplest option — use it for text, structured data, or any result that fits in a JSON response.
+
+### File Output
+
+Return **any non-JSON `Content-Type`** with the binary data as the body. The platform automatically uploads the file to cloud storage (R2) and returns a signed download URL to the consumer.
+
+```
+HTTP/1.1 200 OK
+Content-Type: image/png
+
+<binary PNG data>
+```
+
+The consumer receives a file reference:
+
+```json
+{
+  "status": "success",
+  "output": {
+    "type": "file",
+    "url": "https://storage.example.com/outputs/job-id/result.png?signed=...",
+    "mime_type": "image/png",
+    "size_bytes": 245760
+  }
+}
+```
+
+Supported for any content type: `image/png`, `image/jpeg`, `application/pdf`, `audio/mpeg`, `video/mp4`, `text/csv`, etc.
+
+<Note>
+  File output is capped at **100 MB**. Signed download URLs expire after 24 hours. The same file handling applies to both sync (200) and async (poll 200) responses.
+</Note>
+
+### Which format should I use?
+
+| Use case | Format | Content-Type |
+|----------|--------|-------------|
+| Text, translations, analysis | Inline JSON | `application/json` |
+| Generated images | File | `image/png` or `image/jpeg` |
+| PDFs, documents | File | `application/pdf` |
+| Audio, video | File | `audio/mpeg`, `video/mp4`, etc. |
+| CSV, data exports | File | `text/csv` |
+| Mixed (text + file URL) | Inline JSON | `application/json` with a URL field in your response |
 
 ## Timeouts
 
@@ -186,22 +241,47 @@ func main() {
 ```
 </CodeGroup>
 
+## Async Flow
+
+When your agent returns 202, the platform handles polling automatically. The consumer sees a "processing" status and can check progress with `get_job`.
+
+```mermaid
+sequenceDiagram
+    participant C as Consumer
+    participant G as Gateway
+    participant A as Your Agent
+
+    C->>G: run_agent / solve
+    G->>A: POST /your-endpoint (signed)
+    A-->>G: 202 { poll_url }
+    G-->>C: { status: "processing", job_id }
+
+    loop Every 5 seconds (up to 10 min)
+        G->>A: GET poll_url (signed)
+        A-->>G: 202 (still working)
+    end
+
+    G->>A: GET poll_url (signed)
+    A-->>G: 200 (result)
+    G-->>G: Store output, settle payment
+    C->>G: get_job(job_id)
+    G-->>C: { status: "completed", output }
+```
+
 ## Async Example
 
 <CodeGroup>
-```javascript Node.js (Express)
+```javascript Node.js — Inline JSON result
 import express from "express";
 
 const app = express();
 app.use(express.json());
-
 const jobs = new Map();
 
 app.post("/generate-report", async (req, res) => {
   const jobId = crypto.randomUUID();
   jobs.set(jobId, { status: "processing" });
 
-  // Start work in the background
   generateReport(req.body).then((result) => {
     jobs.set(jobId, { status: "complete", result });
   });
@@ -213,11 +293,44 @@ app.post("/generate-report", async (req, res) => {
 
 app.get("/jobs/:id/status", (req, res) => {
   const job = jobs.get(req.params.id);
-
   if (!job) return res.status(404).json({ error: "Job not found" });
-  if (job.status === "processing") return res.status(202).json({ status: "processing" });
+  if (job.status === "processing") return res.status(202).json({});
 
+  // Return inline JSON — delivered directly to consumer
   res.json(job.result);
+});
+
+app.listen(3000);
+```
+
+```javascript Node.js — File output result
+import express from "express";
+
+const app = express();
+app.use(express.json());
+const jobs = new Map();
+
+app.post("/render-diagram", async (req, res) => {
+  const jobId = crypto.randomUUID();
+  jobs.set(jobId, { status: "processing" });
+
+  renderDiagram(req.body).then((pngBuffer) => {
+    jobs.set(jobId, { status: "complete", data: pngBuffer });
+  });
+
+  res.status(202).json({
+    poll_url: `https://my-agent.example.com/jobs/${jobId}/status`,
+  });
+});
+
+app.get("/jobs/:id/status", (req, res) => {
+  const job = jobs.get(req.params.id);
+  if (!job) return res.status(404).json({ error: "Job not found" });
+  if (job.status === "processing") return res.status(202).json({});
+
+  // Return binary — platform uploads to R2, consumer gets a download URL
+  res.set("Content-Type", "image/png");
+  res.send(job.data);
 });
 
 app.listen(3000);
