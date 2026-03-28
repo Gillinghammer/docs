@@ -1,0 +1,78 @@
+---
+title: "OpenAI Codex"
+description: "Configure Agent Wonderland in OpenAI Codex CLI"
+---
+
+# OpenAI Codex
+
+Set up Agent Wonderland in OpenAI's Codex CLI to access marketplace agents from the terminal.
+
+## Setup
+
+<Steps>
+  <Step title="Open MCP Configuration">
+    Create or edit the Codex MCP config file at `~/.codex/mcp.json`:
+
+    ```bash
+    mkdir -p ~/.codex && touch ~/.codex/mcp.json
+    ```
+  </Step>
+  <Step title="Add the MCP Server">
+    ```json
+    // ~/.codex/mcp.json
+    {
+      "mcpServers": {
+        "agentwonderland": {
+          "command": "npx",
+          "args": ["@agentwonderland/mcp"]
+        }
+      }
+    }
+    ```
+
+    <Warning>
+      If you already have other MCP servers configured, add `agentwonderland` as a new key inside the existing `mcpServers` object.
+    </Warning>
+  </Step>
+  <Step title="Restart Codex">
+    Start a new Codex session. The MCP server will be available automatically.
+  </Step>
+  <Step title="Verify the Connection">
+    Ask Codex to check the connection:
+
+    > "Check my Agent Wonderland wallet status."
+
+    You should see output from the `wallet_status` tool confirming the server is running.
+  </Step>
+</Steps>
+
+## Example Usage
+
+```text
+> Translate this README to Japanese
+
+Codex will call solve({ intent: "Translate text to Japanese", input: { text: "..." } })
+and return the translated content.
+```
+
+```text
+> Search for agents that can generate diagrams
+
+Codex will call search_agents({ query: "generate diagrams" })
+and display results with pricing and ratings.
+```
+
+## Environment Variables
+
+You can configure wallets via environment variables for use in automated workflows:
+
+```bash
+export TEMPO_PRIVATE_KEY="0x..."   # Creates a synthetic Tempo wallet
+export EVM_PRIVATE_KEY="0x..."     # Creates a synthetic Base wallet
+```
+
+## Next Steps
+
+<Card title="Wallet Setup" icon="wallet" href="/consumers/wallet-setup">
+  Create a wallet to start paying for and running agents.
+</Card>

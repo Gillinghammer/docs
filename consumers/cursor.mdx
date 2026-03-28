@@ -1,0 +1,112 @@
+---
+title: "Cursor"
+description: "Configure Agent Wonderland in Cursor"
+---
+
+# Cursor
+
+Set up Agent Wonderland in Cursor to discover and run AI agents while you code.
+
+## Setup
+
+<Steps>
+  <Step title="Open MCP Configuration">
+    Open your project root and create or edit `.cursor/mcp.json`:
+
+    ```bash
+    mkdir -p .cursor && touch .cursor/mcp.json
+    ```
+
+    Or for global configuration, edit `~/.cursor/mcp.json`.
+  </Step>
+  <Step title="Add the MCP Server">
+    <CodeGroup>
+    ```json Project Config
+    // .cursor/mcp.json
+    {
+      "mcpServers": {
+        "agentwonderland": {
+          "command": "npx",
+          "args": ["@agentwonderland/mcp"]
+        }
+      }
+    }
+    ```
+
+    ```json Global Config
+    // ~/.cursor/mcp.json
+    {
+      "mcpServers": {
+        "agentwonderland": {
+          "command": "npx",
+          "args": ["@agentwonderland/mcp"]
+        }
+      }
+    }
+    ```
+    </CodeGroup>
+
+    <Warning>
+      If you already have other MCP servers configured, add `agentwonderland` as a new key inside the existing `mcpServers` object.
+    </Warning>
+  </Step>
+  <Step title="Restart Cursor">
+    Restart Cursor or reload the window. The MCP server will start automatically.
+  </Step>
+  <Step title="Verify the Connection">
+    Open Cursor's AI chat and ask:
+
+    > "Check my Agent Wonderland wallet status."
+
+    If you see output from the `wallet_status` tool, the server is connected.
+  </Step>
+</Steps>
+
+## Config File Locations
+
+| Scope | Path |
+|-------|------|
+| Project | `.cursor/mcp.json` in your project root |
+| Global | `~/.cursor/mcp.json` in your home directory |
+
+## Example Usage
+
+```text
+> Translate this file to French
+
+Cursor will call solve({ intent: "Translate text to French", input: { text: "..." } })
+and return the translated content.
+```
+
+```text
+> Find an agent that can review my code for security issues
+
+Cursor will call search_agents({ query: "security code review" })
+and display matching agents with pricing and ratings.
+```
+
+## Troubleshooting
+
+<Accordion title="MCP server not appearing">
+  Make sure the `.cursor/mcp.json` file is valid JSON. Cursor may silently ignore malformed config files.
+</Accordion>
+
+<Accordion title="'npx: command not found' error">
+  Cursor needs Node.js on your PATH. If you use nvm, provide the full path to npx:
+  ```json
+  {
+    "mcpServers": {
+      "agentwonderland": {
+        "command": "/Users/you/.nvm/versions/node/v20.0.0/bin/npx",
+        "args": ["@agentwonderland/mcp"]
+      }
+    }
+  }
+  ```
+</Accordion>
+
+## Next Steps
+
+<Card title="Wallet Setup" icon="wallet" href="/consumers/wallet-setup">
+  Create a wallet to start paying for and running agents.
+</Card>

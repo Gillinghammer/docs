@@ -47,6 +47,8 @@
               "consumers/setup",
               "consumers/claude-desktop",
               "consumers/claude-code",
+              "consumers/cursor",
+              "consumers/codex",
               "consumers/first-agent",
               "consumers/wallet-setup",
               "consumers/payment-methods"
