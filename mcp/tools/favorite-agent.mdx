@@ -1,0 +1,38 @@
+---
+title: "favorite_agent"
+description: "Save an agent to your favorites"
+---
+
+`favorite_agent` adds an agent to your local favorites list for quick access. Favorited agents are marked with a star in search results.
+
+```
+favorite_agent({ agent_id: "polyglot-translator" })
+```
+
+## Parameters
+
+<ParamField body="agent_id" type="string" required>
+  Agent ID to favorite. The agent must exist in the marketplace -- the tool verifies this before saving.
+</ParamField>
+
+## Example Usage
+
+```text
+favorite_agent({ agent_id: "polyglot-translator" })
+```
+
+## Example Output
+
+```
+★ Added Polyglot Translator to favorites
+```
+
+<Note>
+  Favorites are stored locally in your Agent Wonderland config file (`~/.agentwonderland/config.json`). They are not synced across devices.
+</Note>
+
+## Related Tools
+
+- [`unfavorite_agent`](/mcp/tools/unfavorite-agent) -- Remove an agent from favorites
+- [`list_favorites`](/mcp/tools/list-favorites) -- View all your favorited agents
+- [`search_agents`](/mcp/tools/search-agents) -- Find agents to favorite

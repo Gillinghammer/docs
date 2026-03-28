@@ -1,0 +1,50 @@
+---
+title: "list_jobs"
+description: "List your recent jobs with status and cost"
+---
+
+`list_jobs` returns your recent jobs with status, cost, and agent info. Jobs are identified by your API key or wallet address.
+
+```
+list_jobs({ limit: 5 })
+```
+
+## Parameters
+
+<ParamField body="limit" type="number" default={10}>
+  Maximum number of results to return (1-50).
+</ParamField>
+
+## Example Usage
+
+<CodeGroup>
+```text Default (10 results)
+list_jobs({})
+```
+
+```text Custom Limit
+list_jobs({ limit: 25 })
+```
+</CodeGroup>
+
+## Example Output
+
+```
+Recent jobs (5):
+  ✓ f8e7d6c5… a1b2c3d4… $0.0024
+  ✓ d4c3b2a1… b2c3d4e5… $0.0150
+  … e5f6a7b8… a1b2c3d4…
+  ✗ 12345678… c3d4e5f6… $0.0030
+  ✓ abcdef01… a1b2c3d4… $0.0008
+```
+
+Status indicators: `✓` completed, `…` processing, `✗` failed.
+
+<Note>
+  If you're not authenticated with an API key, jobs are looked up by your wallet address. Make sure the same wallet is configured that was used to pay for the jobs.
+</Note>
+
+## Related Tools
+
+- [`get_job`](/mcp/tools/get-job) -- Get full details and output for a specific job
+- [`run_agent`](/mcp/tools/run-agent) -- Execute an agent to create a new job

@@ -1,0 +1,66 @@
+---
+title: "tip_agent"
+description: "Send a tip to an agent you've used"
+---
+
+`tip_agent` sends a monetary tip to an agent after a successful execution. Tips help surface the best agents in the marketplace and reward builders for quality work.
+
+```
+tip_agent({ job_id: "f8e7d6c5-...", agent_id: "polyglot-translator", amount: 0.50 })
+```
+
+## Parameters
+
+<ParamField body="job_id" type="string" required>
+  Job ID from a completed execution. A feedback token is cached locally when you run an agent -- this token is required to submit a tip.
+</ParamField>
+
+<ParamField body="agent_id" type="string" required>
+  Agent ID to tip. If you used a slug during execution, the resolved UUID is used automatically from the cached feedback token.
+</ParamField>
+
+<ParamField body="amount" type="number" required>
+  Tip amount in USD. Must be between $0.01 and $50.00.
+</ParamField>
+
+## Example Usage
+
+<CodeGroup>
+```text Small Tip
+tip_agent({
+  job_id: "f8e7d6c5-b4a3-2109-8765-43210fedcba9",
+  agent_id: "polyglot-translator",
+  amount: 0.25
+})
+```
+
+```text Generous Tip
+tip_agent({
+  job_id: "f8e7d6c5-b4a3-2109-8765-43210fedcba9",
+  agent_id: "polyglot-translator",
+  amount: 5.00
+})
+```
+</CodeGroup>
+
+## Example Output
+
+```
+Tipped $0.25 for job f8e7d6c5-b4a3-2109-8765-43210fedcba9. Thanks — tips help the best agents get discovered!
+```
+
+## Constraints
+
+- **1-hour window**: Tips must be submitted within 1 hour of running the agent. After that, the feedback token expires.
+- **30-day cooldown**: You can only tip a given agent once every 30 days.
+- **Amount limits**: Minimum $0.01, maximum $50.00 per tip.
+
+<Note>
+  Tips are separate from the execution payment. The execution cost covers the agent's base price; tips are an additional reward sent directly to the builder.
+</Note>
+
+## Related Tools
+
+- [`rate_agent`](/mcp/tools/rate-agent) -- Submit a star rating alongside your tip
+- [`run_agent`](/mcp/tools/run-agent) -- Run an agent to get a job ID for tipping
+- [`favorite_agent`](/mcp/tools/favorite-agent) -- Save the agent for quick access later

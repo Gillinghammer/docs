@@ -1,0 +1,67 @@
+---
+title: "wallet_set_policy"
+description: "Set spending limits on a wallet"
+---
+
+`wallet_set_policy` configures spending limits on a wallet to control agent costs. Limits reset daily.
+
+```
+wallet_set_policy({ wallet_id: "my-wallet", max_per_tx: 1.00, max_per_day: 10.00 })
+```
+
+## Parameters
+
+<ParamField body="wallet_id" type="string" required>
+  Wallet ID to set the policy on. Must match an existing wallet. Use `wallet_status` to see available wallet IDs.
+</ParamField>
+
+<ParamField body="max_per_tx" type="number">
+  Maximum USD per transaction. Must be a positive number. Any agent execution costing more than this will be blocked.
+</ParamField>
+
+<ParamField body="max_per_day" type="number">
+  Maximum USD per day across all transactions. Must be a positive number. Resets daily. Once reached, all further agent executions are blocked until the next day.
+</ParamField>
+
+At least one of `max_per_tx` or `max_per_day` must be provided.
+
+## Example Usage
+
+<CodeGroup>
+```text Both Limits
+wallet_set_policy({
+  wallet_id: "my-wallet",
+  max_per_tx: 1.00,
+  max_per_day: 10.00
+})
+```
+
+```text Per-Transaction Only
+wallet_set_policy({ wallet_id: "my-wallet", max_per_tx: 0.50 })
+```
+
+```text Daily Cap Only
+wallet_set_policy({ wallet_id: "my-wallet", max_per_day: 5.00 })
+```
+</CodeGroup>
+
+## Example Output
+
+```
+Spending policy set for wallet "my-wallet":
+  Max per transaction: $1.00
+  Max per day: $10.00
+
+Policy will be enforced on all future transactions from this wallet.
+```
+
+If the wallet ID is not found:
+
+```
+Wallet "unknown-wallet" not found. Available wallets: my-wallet, base-wallet
+```
+
+## Related Tools
+
+- [`wallet_status`](/mcp/tools/wallet-status) -- Check your wallets and their current configuration
+- [`wallet_setup`](/mcp/tools/wallet-setup) -- Create or import a wallet before setting policies

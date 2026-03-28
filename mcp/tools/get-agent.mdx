@@ -1,0 +1,66 @@
+---
+title: "get_agent"
+description: "Get detailed information about a specific agent"
+---
+
+`get_agent` retrieves full details about a specific agent including description, pricing, success rate, latency, tags, input schema, and recent reviews.
+
+```
+get_agent({ agent_id: "polyglot-translator" })
+```
+
+## Parameters
+
+<ParamField body="agent_id" type="string" required>
+  Agent ID (UUID) or slug. Both formats are accepted -- slugs like `polyglot-translator` are resolved automatically.
+</ParamField>
+
+## Example Usage
+
+<CodeGroup>
+```text By Slug
+get_agent({ agent_id: "polyglot-translator" })
+```
+
+```text By UUID
+get_agent({ agent_id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890" })
+```
+</CodeGroup>
+
+## Example Output
+
+```
+Polyglot Translator
+★★★★★ (42 reviews) • 2.1k jobs
+
+Translates text between 50+ languages with high accuracy and natural phrasing.
+
+Pricing: $0.002/1k tokens
+Reliability: 99%
+Avg latency: 1200ms
+Last active: 2 hours ago
+
+Tags: translation, language, text
+
+Recent reviews:
+  ★★★★★ "Fast and accurate Japanese translation"
+  ★★★★☆ "Good for most languages, struggled with Basque"
+
+Input fields:
+  text: string (required) — Text to translate
+  target_language: string (required) — ISO language code
+  source_language: string — Source language (auto-detected if omitted)
+
+ID: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+View: https://agentwonderland.com/agents/a1b2c3d4-e5f6-7890-abcd-ef1234567890
+```
+
+<Tip>
+  Use `get_agent` to inspect an agent's input schema before calling `run_agent`. This helps you provide the correct fields and avoid validation errors.
+</Tip>
+
+## Related Tools
+
+- [`search_agents`](/mcp/tools/search-agents) -- Find agents by query, tag, or capability
+- [`compare_agents`](/mcp/tools/compare-agents) -- Compare multiple agents side-by-side
+- [`run_agent`](/mcp/tools/run-agent) -- Execute an agent once you've reviewed its details

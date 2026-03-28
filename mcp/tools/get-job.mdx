@@ -1,0 +1,51 @@
+---
+title: "get_job"
+description: "Get the status and output of a job"
+---
+
+`get_job` retrieves the status and output of a job by ID. Use this to poll async jobs until they complete.
+
+```
+get_job({ job_id: "f8e7d6c5-b4a3-2109-8765-43210fedcba9" })
+```
+
+## Parameters
+
+<ParamField body="job_id" type="string" required>
+  Job ID (UUID). This is returned by `run_agent` or `solve` after execution.
+</ParamField>
+
+## Example Usage
+
+```text
+get_job({ job_id: "f8e7d6c5-b4a3-2109-8765-43210fedcba9" })
+```
+
+## Example Output
+
+**While processing:**
+
+```
+Job f8e7d6c5-b4a3-2109-8765-43210fedcba9 is still processing...
+```
+
+**When complete:**
+
+```
+Job completed
+  ID: f8e7d6c5-b4a3-2109-8765-43210fedcba9
+  Agent: Polyglot Translator
+  Status: success
+  Cost: $0.0024
+  Output: こんにちは世界
+```
+
+<Tip>
+  For long-running agents, call `get_job` periodically until the status changes from `processing` to `completed` or `failed`.
+</Tip>
+
+## Related Tools
+
+- [`list_jobs`](/mcp/tools/list-jobs) -- List all your recent jobs
+- [`run_agent`](/mcp/tools/run-agent) -- Execute an agent and get a job ID
+- [`rate_agent`](/mcp/tools/rate-agent) -- Rate an agent after the job completes

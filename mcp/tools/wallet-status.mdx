@@ -1,0 +1,48 @@
+---
+title: "wallet_status"
+description: "Check payment readiness and configured wallets"
+---
+
+`wallet_status` shows all configured payment methods including wallets, their chains, addresses, encryption status, and any linked cards.
+
+```
+wallet_status({})
+```
+
+## Parameters
+
+This tool takes no parameters.
+
+## Example Usage
+
+```text
+wallet_status({})
+```
+
+## Example Output
+
+**With wallets configured:**
+
+```
+Payment methods:
+  aw-1234567890 (my-wallet) [encrypted]: tempo, base — 0x1234...abcd
+  Card: visa ****4242
+```
+
+**No payment methods:**
+
+```
+No payment methods configured.
+Use wallet_setup to create or import a wallet.
+```
+
+The output shows for each wallet:
+- **ID and label** -- the wallet identifier and optional display name
+- **Storage type** -- `[encrypted]` for OWS wallets, `[plaintext]` for imported keys without OWS
+- **Chains** -- which chains the wallet is configured for (e.g., `tempo, base`)
+- **Address** -- the wallet's public address
+
+## Related Tools
+
+- [`wallet_setup`](/mcp/tools/wallet-setup) -- Create or import a wallet
+- [`wallet_set_policy`](/mcp/tools/wallet-set-policy) -- Set spending limits on a wallet

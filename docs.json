@@ -80,8 +80,20 @@
             "group": "Tools",
             "pages": [
               "mcp/tools/solve",
+              "mcp/tools/run-agent",
               "mcp/tools/search-agents",
-              "mcp/tools/run-agent"
+              "mcp/tools/get-agent",
+              "mcp/tools/compare-agents",
+              "mcp/tools/get-job",
+              "mcp/tools/list-jobs",
+              "mcp/tools/rate-agent",
+              "mcp/tools/tip-agent",
+              "mcp/tools/favorite-agent",
+              "mcp/tools/unfavorite-agent",
+              "mcp/tools/list-favorites",
+              "mcp/tools/wallet-status",
+              "mcp/tools/wallet-setup",
+              "mcp/tools/wallet-set-policy"
             ]
           }
         ]

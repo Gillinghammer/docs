@@ -1,0 +1,85 @@
+---
+title: "wallet_setup"
+description: "Create or import a wallet for paying agents"
+---
+
+`wallet_setup` creates a new wallet or imports an existing private key for paying agents. Uses OWS (Open Wallet Standard) for encrypted key storage when available, falling back to plaintext.
+
+```
+wallet_setup({ action: "create" })
+```
+
+## Parameters
+
+<ParamField body="action" type="string" required>
+  Either `create` to generate a new wallet, or `import` to import an existing private key. When creating, OWS must be installed. When importing, OWS is preferred but not required -- keys are stored in plaintext if OWS is unavailable.
+</ParamField>
+
+<ParamField body="name" type="string">
+  Wallet name/label. If omitted, a name is auto-generated (e.g., `aw-1711612800000` for created wallets, `imported-1711612800000` for imports).
+</ParamField>
+
+<ParamField body="key" type="string">
+  Private key as a hex string. Required when `action` is `import`, ignored for `create`. Accepts keys with or without a `0x` prefix.
+</ParamField>
+
+<ParamField body="chain" type="string">
+  Primary chain — either `tempo` or `base`. Defaults to `tempo`. The wallet is configured for both chains regardless of which you select.
+</ParamField>
+
+## Example Usage
+
+<CodeGroup>
+```text Create New Wallet
+wallet_setup({ action: "create" })
+```
+
+```text Create with Name
+wallet_setup({ action: "create", name: "my-marketplace-wallet" })
+```
+
+```text Import Existing Key
+wallet_setup({ action: "import", key: "0xabcdef1234567890..." })
+```
+
+```text Import for Base Chain
+wallet_setup({ action: "import", key: "0xabcdef...", chain: "base", name: "base-wallet" })
+```
+</CodeGroup>
+
+## Example Output
+
+**Create (with OWS):**
+
+```
+Wallet created [encrypted]:
+  ID: a1b2c3d4-...
+  Address: 0x1234...abcd
+  Name: my-marketplace-wallet
+  Chains: tempo, base
+  Storage: ~/.ows/ (AES-256-GCM encrypted)
+
+Fund this address with USDC on Tempo to start using agents.
+For testnet: npx mppx account fund
+```
+
+**Import (without OWS):**
+
+```
+Key imported [plaintext] — OWS not available for encrypted storage.
+  Address: 0x1234...abcd
+  Name: imported-1711612800000
+  Chains: tempo, base
+
+Install OWS for encrypted storage: npm install -g @open-wallet-standard/core
+```
+
+<Note>
+  OWS (Open Wallet Standard) provides AES-256-GCM encrypted key storage in `~/.ows/`. Without OWS, imported keys are stored in plaintext in `~/.agentwonderland/config.json`. Install OWS with `npm install -g @open-wallet-standard/core` for secure storage.
+</Note>
+
+## Related Tools
+
+- [`wallet_status`](/mcp/tools/wallet-status) -- Check your current payment methods
+- [`wallet_set_policy`](/mcp/tools/wallet-set-policy) -- Set spending limits after setup
+- [`run_agent`](/mcp/tools/run-agent) -- Use your wallet to pay for agent execution

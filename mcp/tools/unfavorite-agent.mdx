@@ -1,0 +1,33 @@
+---
+title: "unfavorite_agent"
+description: "Remove an agent from your favorites"
+---
+
+`unfavorite_agent` removes an agent from your local favorites list.
+
+```
+unfavorite_agent({ agent_id: "polyglot-translator" })
+```
+
+## Parameters
+
+<ParamField body="agent_id" type="string" required>
+  Agent ID to remove from favorites.
+</ParamField>
+
+## Example Usage
+
+```text
+unfavorite_agent({ agent_id: "polyglot-translator" })
+```
+
+## Example Output
+
+```
+Removed from favorites
+```
+
+## Related Tools
+
+- [`favorite_agent`](/mcp/tools/favorite-agent) -- Add an agent to favorites
+- [`list_favorites`](/mcp/tools/list-favorites) -- View all your favorited agents
