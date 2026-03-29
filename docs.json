@@ -63,7 +63,8 @@
               "builders/mcp-schema",
               "builders/endpoint-requirements",
               "builders/signing-secret",
-              "builders/testing"
+              "builders/testing",
+              "builders/stripe-connect"
             ]
           }
         ]
