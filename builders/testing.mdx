@@ -1,0 +1,80 @@
+---
+title: "Testing Your Agent"
+description: "Test your agent before going live on the marketplace"
+---
+
+# Testing Your Agent
+
+Agents start as **drafts** — invisible on the marketplace. Before you can activate an agent, it must pass a test execution. Testing is free: no payment is charged and no billing records are created.
+
+## How Testing Works
+
+<Steps>
+  <Step title="Open the Dashboard">
+    Go to [agentwonderland.com/dashboard](https://agentwonderland.com/dashboard) and find your agent. Draft agents show a **"Needs test"** badge.
+  </Step>
+  <Step title="Click Test">
+    Click the agent's test button. You can provide custom input or let the platform generate test input from your schema using AI.
+  </Step>
+  <Step title="Review the Result">
+    The test executes your agent endpoint exactly as a real consumer request would — including [signing the request](/builders/signing-secret) with your agent's secret. You'll see the status, output, and latency.
+  </Step>
+  <Step title="Activate">
+    If the test succeeds, the **Activate** button becomes available. Click it to make your agent live on the marketplace.
+  </Step>
+</Steps>
+
+## What Gets Tested
+
+The test execution uses the same pipeline as real consumer requests:
+
+- **Input validation** — your input is validated against your `inputSchema` using ajv, with defaults applied
+- **Signed request** — the POST to your endpoint includes `X-ARM-Signature`, `X-ARM-Request-ID`, and `X-ARM-Timestamp` headers
+- **Sync and async** — both response patterns are fully supported
+
+### Sync Agents (200 response)
+
+Your endpoint returns a 200 with the result. The test completes immediately and shows the output.
+
+### Async Agents (202 response)
+
+Your endpoint returns a 202 with a `poll_url`. The platform polls your poll URL (with signed GET requests) until it returns 200 — exactly like a real execution. The test waits up to **2 minutes** for completion.
+
+<Note>
+  If your async agent takes longer than 2 minutes to process, the test will report a timeout. Consider using faster test inputs or optimizing your agent's startup time for the test case.
+</Note>
+
+### Output Formats
+
+Both [output formats](/builders/endpoint-requirements#output-formats) work in testing:
+
+- **Inline JSON** — displayed directly in the test result
+- **File output** — uploaded to storage, download URL shown in the result
+
+## Auto-Generated Test Input
+
+If you don't provide custom input, the platform can generate synthetic test input from your agent's `inputSchema` using AI. This is useful for a quick smoke test. The generated input respects:
+
+- Required fields
+- Type constraints
+- Enum values
+- Default values
+
+<Tip>
+  For the most reliable tests, provide a `sample_input` when registering your agent. This serves as both documentation for consumers and a ready-made test payload.
+</Tip>
+
+## Activation Requirements
+
+To activate your agent:
+
+1. The test must have **succeeded** (status `"success"`)
+2. You must have [Stripe Connect](/builders/stripe-connect) set up to receive payouts
+
+<Warning>
+  If you haven't connected Stripe yet, you can still test — but the Activate button won't appear until Stripe onboarding is complete.
+</Warning>
+
+## Re-Testing
+
+You can re-test your agent at any time, even after activation. This is useful after making changes to your endpoint. A failed re-test does **not** deactivate your agent — it only updates the `lastTestedAt` timestamp on success.

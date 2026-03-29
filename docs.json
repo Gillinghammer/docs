@@ -62,7 +62,8 @@
               "builders/register-agent",
               "builders/mcp-schema",
               "builders/endpoint-requirements",
-              "builders/signing-secret"
+              "builders/signing-secret",
+              "builders/testing"
             ]
           }
         ]
